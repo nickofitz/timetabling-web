@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ run.status }} · Horarios universitarios{% endblock %}
+{% block content %}
+<p><a href="/">← Resolver otra instancia</a>{% if store_enabled %} · <a href="/corridas">Historial</a>{% endif %}</p>
+<h1><span class="badge {{ run.status }}">{{ run.status }}</span> {{ run.source }}</h1>
+<p class="lead">{{ explanation }}</p>
+{% for note in notes %}<div class="alert note">{{ note }}</div>{% endfor %}
+
+<div class="metrics">
+  <div class="metric"><div class="k">Solver</div><div class="v" style="font-size:1rem">{{ solver_label }}</div>
+    <div class="s">Límite {{ run.time_limit|int }} s{% if run.gamma %}, ventana = {{ run.gamma }}{% endif %}</div></div>
+  <div class="metric"><div class="k">Secciones</div><div class="v">{{ run.sections }}</div></div>
+  <div class="metric"><div class="k">Alternativas admisibles</div><div class="v">{{ run.precheck.alternatives_after }}</div>
+    <div class="s">de {{ run.precheck.pairs_before }} combinaciones posibles</div></div>
+  {% if run.total is not none %}
+  <div class="metric"><div class="k">Objetivo</div><div class="v">{{ run.total }}</div>
+    <div class="s">{% if run.gamma %}{{ run.objective }} de costo + {{ run.gamma }} × {{ run.windows }} ventanas{% else %}preferencias docentes y holgura de capacidad{% endif %}</div></div>
+  {% endif %}
+  {% if run.best_bound is not none %}
+  <div class="metric"><div class="k">Cota inferior</div><div class="v">{{ "%.1f"|format(run.best_bound)|replace(".", ",") }}</div>
+    <div class="s">ningún horario puede costar menos</div></div>
+  {% endif %}
+  {% if run.gap is not none %}
+  <div class="metric"><div class="k">Brecha</div><div class="v">{{ "%.1f"|format(run.gap * 100)|replace(".", ",") }} %</div>
+    <div class="s">(objetivo − cota) / objetivo</div></div>
+  {% endif %}
+  {% if run.windows is not none %}
+  <div class="metric"><div class="k">Ventanas</div><div class="v">{{ run.windows }}</div>
+    <div class="s">bloques libres entre clases de un grupo</div></div>
+  {% endif %}
+  {% if run.audit %}
+  <div class="metric"><div class="k">Auditoría independiente</div><div class="v"><span class="badge {{ run.audit }}">{{ run.audit }}</span></div>
+    <div class="s">recalcula choques y costos sin el solver</div></div>
+  {% endif %}
+  <div class="metric"><div class="k">Tiempo</div><div class="v">{{ "%.1f"|format(run.seconds)|replace(".", ",") }} s</div>
+    <div class="s">{% if run.solve_seconds is not none %}{{ "%.1f"|format(run.solve_seconds)|replace(".", ",") }} s en el solver{% else %}sin llamar al solver{% endif %}</div></div>
+</div>
+
+{% if run.audit_findings %}
+<h2>Hallazgos de la auditoría</h2>
+<table><thead><tr><th>Regla</th><th>Secciones</th><th>Detalle</th></tr></thead><tbody>
+{% for finding in run.audit_findings %}
+<tr><td><code>{{ finding.rule }}</code></td><td>{{ finding.section_ids|join(", ") }}</td><td>{{ finding.detail }}</td></tr>
+{% endfor %}
+</tbody></table>
+{% endif %}
+
+{% if run.precheck.empty_sections %}
+<h2>Secciones sin alternativas</h2>
+<p class="help">Ninguna combinación de patrón autorizado y sala sobrevivió al prefiltro. Corrija los datos de estas secciones.</p>
+<table><thead><tr><th>Sección</th><th>Por qué se descartaron todas</th></tr></thead><tbody>
+{% for section, reasons in run.precheck.empty_sections.items() %}
+<tr><td><code>{{ section }}</code></td><td>{% for reason in reasons %}{{ rule_labels.get(reason, reason) }}{% if not loop.last %}; {% endif %}{% endfor %}</td></tr>
+{% endfor %}
+</tbody></table>
+{% endif %}
+
+<h2>Prefiltro SQL</h2>
+<p class="help">Antes del solver, SQL descarta las combinaciones (sección, patrón, sala) que violan una regla dura.
+Una combinación puede caer por más de un motivo, así que los conteos pueden sumar más que los descartes.</p>
+<table><thead><tr><th>Motivo</th><th class="num">Combinaciones</th></tr></thead><tbody>
+{% for rule, count in run.precheck.discards_by_rule.items() %}
+<tr><td>{{ rule_labels.get(rule, rule) }}</td><td class="num">{{ count }}</td></tr>
+{% else %}
+<tr><td colspan="2">Ninguna combinación descartada.</td></tr>
+{% endfor %}
+</tbody></table>
+
+{% if run.schedule_html %}
+<h2>Horario</h2>
+<p>{% if files.schedule_csv %}<a download="horario-{{ run.id }}.csv" href="{{ files.schedule_csv }}">Descargar CSV</a> · {% endif %}
+   {% if files.schedule_html %}<a download="horario-{{ run.id }}.html" href="{{ files.schedule_html }}">Descargar la grilla como HTML</a>{% endif %}</p>
+<iframe class="schedule" title="Horario" sandbox="allow-scripts" srcdoc="{{ run.schedule_html }}"></iframe>
+{% endif %}
+{% endblock %}

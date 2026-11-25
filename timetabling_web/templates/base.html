@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Horarios universitarios{% endblock %}</title>
+<style>
+:root { --ink:#1d2433; --muted:#5b6478; --line:#d9dde5; --bg:#f6f7f9; --card:#fff;
+        --accent:#1f5fbf; --ok:#1b7f4b; --warn:#9a5b00; --bad:#b3261e; }
+* { box-sizing: border-box; }
+body { margin:0; font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg); }
+a { color:var(--accent); }
+.wrap { max-width:1100px; margin:0 auto; padding:0 20px; }
+header { background:#fff; border-bottom:1px solid var(--line); }
+header .wrap { display:flex; gap:28px; align-items:center; min-height:60px; flex-wrap:wrap; }
+header .brand { font-weight:700; color:var(--ink); text-decoration:none; }
+nav a { color:var(--muted); text-decoration:none; margin-right:18px; }
+nav a:hover { color:var(--accent); }
+main { padding:28px 0 56px; }
+h1 { font-size:1.6rem; margin:0 0 8px; } h2 { font-size:1.15rem; margin:32px 0 10px; }
+.lead { color:var(--muted); max-width:75ch; }
+.help { color:var(--muted); font-size:.9rem; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 20px 20px; }
+form .row { display:grid; grid-template-columns:210px 1fr; gap:12px; padding:12px 0; border-bottom:1px solid #eef0f4; }
+.title { font-weight:600; }
+input[type=number], select, input[type=password] { padding:6px 8px; border:1px solid var(--line); border-radius:6px; font:inherit; }
+input[type=number] { width:100px; }
+button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 24px; font:inherit; font-weight:600; cursor:pointer; }
+button[disabled] { opacity:.6; cursor:progress; }
+table { border-collapse:collapse; width:100%; background:#fff; border:1px solid var(--line); }
+th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+th { font-size:.85rem; color:var(--muted); font-weight:600; background:#fafbfc; }
+.num { text-align:right; font-variant-numeric:tabular-nums; }
+code { background:#eef1f6; padding:1px 5px; border-radius:4px; font-size:.88em; }
+.alert { border-radius:8px; padding:12px 16px; margin:16px 0; border:1px solid; }
+.alert.error { background:#fdecea; border-color:#f5c2bd; color:var(--bad); }
+.alert.note { background:#eef4fd; border-color:#c9dbf6; }
+.badge { display:inline-block; padding:2px 10px; border-radius:999px; font-weight:700; font-size:.8rem; color:#fff; vertical-align:middle; }
+.badge.OPTIMAL, .badge.PASSED { background:var(--ok); }
+.badge.FEASIBLE { background:var(--warn); }
+.badge.INFEASIBLE, .badge.UNKNOWN, .badge.NO_CANDIDATES, .badge.MODEL_INVALID, .badge.FAILED { background:var(--bad); }
+.metrics { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin:18px 0; }
+.metric { background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+.metric .k { color:var(--muted); font-size:.82rem; }
+.metric .v { font-size:1.3rem; font-weight:700; font-variant-numeric:tabular-nums; }
+.metric .s { color:var(--muted); font-size:.8rem; }
+iframe.schedule { width:100%; height:900px; border:1px solid var(--line); border-radius:10px; background:#fff; }
+footer { color:var(--muted); font-size:.85rem; padding:20px 0 32px; border-top:1px solid var(--line); }
+@media (max-width:700px) { form .row { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="brand" href="/">Horarios universitarios</a>
+  <nav><a href="/">Resolver</a><a href="/formato">Formato de datos</a>{% if store_enabled %}<a href="/corridas">Corridas</a>{% endif %}</nav>
+</div></header>
+<main><div class="wrap">{% block content %}{% endblock %}</div></main>
+<footer><div class="wrap">
+  Demostración con datos sintéticos. Código:
+  <a href="https://github.com/nickofitz/timetabling-web">timetabling-web</a>, sobre
+  <a href="https://github.com/nickofitz/academic-timetabling-demo">academic-timetabling-demo</a> y
+  <a href="https://github.com/nickofitz/timetabling-milp-comparison">timetabling-milp-comparison</a>.
+</div></footer>
+</body>
+</html>

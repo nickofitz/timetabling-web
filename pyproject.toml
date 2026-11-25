@@ -1,0 +1,47 @@
+[project]
+name = "timetabling-web"
+version = "0.1.0"
+description = "Aplicación web para programar horarios universitarios: sube los datos, elige solver y obtén un horario auditado"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "academic-timetabling-demo",
+    "timetabling-milp",
+    "fastapi>=0.115",
+    "httpx>=0.27",
+    "jinja2>=3.1",
+    "python-multipart>=0.0.9",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "uvicorn",
+]
+
+[tool.uv]
+# Aplicación, no biblioteca: Vercel carga `app.py` desde la raíz del repositorio.
+package = false
+# timetabling-milp declara el original como submódulo propio; uv respeta esa fuente y chocaría
+# con la de arriba. El override impone en todo el grafo la versión corregida del original.
+override-dependencies = [
+    "academic-timetabling-demo @ git+https://github.com/nickofitz/academic-timetabling-demo@a653f8e00330fbdcebc4bc56fd2d4e423fc4e77d",
+]
+
+[tool.uv.sources]
+# Ambos fijados a un commit: un cambio en esos repositorios no altera este despliegue
+# hasta que se actualice el commit aquí y se vuelvan a ejecutar las pruebas.
+academic-timetabling-demo = { git = "https://github.com/nickofitz/academic-timetabling-demo", rev = "a653f8e00330fbdcebc4bc56fd2d4e423fc4e77d" }
+timetabling-milp = { git = "https://github.com/nickofitz/timetabling-milp-comparison", rev = "30c1a8afbce51f4e8210883e4fb0f417b16813f4" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

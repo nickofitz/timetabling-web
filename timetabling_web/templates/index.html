@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Programación de horarios universitarios</h1>
+<p class="lead">Asigna a cada sección un patrón semanal y una sala sin choques de sala, docente ni grupo,
+minimizando las preferencias docentes no atendidas y los asientos vacíos. Cada horario se verifica con un
+auditor independiente del solver.</p>
+
+{% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+{% if issues %}
+<div class="alert error">Los datos no cumplen el formato. Corrija estos {{ issues|length }} problema(s) y vuelva a subir el ZIP.</div>
+<table>
+  <thead><tr><th>Archivo</th><th class="num">Fila</th><th>Campo</th><th>Problema</th></tr></thead>
+  <tbody>
+  {% for issue in issues %}
+    <tr><td><code>{{ issue.file }}</code></td><td class="num">{{ issue.row if issue.row is not none else "—" }}</td>
+        <td>{{ issue.field or "—" }}</td><td>{{ issue.message }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<form class="card" method="post" action="/resolver" enctype="multipart/form-data" id="solve-form">
+  <div class="row">
+    <label class="title" for="source">Datos</label>
+    <div>
+      <select name="source" id="source">
+        {% for sample in samples %}
+        <option value="{{ sample.name }}" {% if sample.name == form.source %}selected{% endif %}>Ejemplo {{ sample.name }} ({{ sample.sections }} secciones)</option>
+        {% endfor %}
+        <option value="upload" {% if form.source == "upload" %}selected{% endif %}>Subir un ZIP propio</option>
+      </select>
+      <div id="upload-box" style="margin-top:10px">
+        <input type="file" name="upload" accept=".zip,application/zip">
+        <div class="help">Los 20 CSV y <code>config.json</code> en un ZIP de hasta {{ max_zip_mb }} MB y {{ max_sections }} secciones.
+          <a href="/formato">Ver el formato</a> o descargue un ejemplo y edítelo.</div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="title">Solver</span>
+    <div>
+      {% for key, label in solvers.items() %}
+      <label><input type="radio" name="solver" value="{{ key }}" {% if key == form.solver %}checked{% endif %}> {{ label }}</label><br>
+      {% endfor %}
+      <div class="help">Mismo modelo, dos paradigmas.
+        <a href="https://github.com/nickofitz/timetabling-milp-comparison">Ver la comparación</a>.</div>
+    </div>
+  </div>
+  <div class="row">
+    <label class="title" for="time_limit">Límite de tiempo</label>
+    <div><input type="number" id="time_limit" name="time_limit" min="1" max="{{ max_time }}" step="1" value="{{ form.time_limit|int }}"> segundos
+      <div class="help">Al vencer se entrega el mejor horario encontrado, con su brecha respecto del óptimo.</div></div>
+  </div>
+  <div class="row">
+    <label class="title" for="gamma">Penalización por ventana</label>
+    <div><input type="number" id="gamma" name="gamma" min="0" max="{{ max_gamma }}" step="1" value="{{ form.gamma }}">
+      <div class="help">Costo de cada bloque libre entre dos clases de un mismo grupo en un día. Con 0 no se considera.</div></div>
+  </div>
+  {% if access_required %}
+  <div class="row">
+    <label class="title" for="access_code">Código de acceso</label>
+    <div><input type="password" id="access_code" name="access_code" autocomplete="off"></div>
+  </div>
+  {% endif %}
+  <div style="padding-top:16px">
+    <button type="submit" id="solve-button">Resolver</button>
+    <span class="help" id="solve-wait" hidden>Resolviendo. Puede tardar hasta el límite de tiempo y unos segundos más.</span>
+  </div>
+</form>
+
+<h2>Ejemplos</h2>
+<table>
+  <thead><tr><th>Ejemplo</th><th class="num">Secciones</th><th>Qué muestra</th><th></th></tr></thead>
+  <tbody>
+  {% for sample in samples %}
+    <tr><td>{{ sample.name }}</td><td class="num">{{ sample.sections }}</td><td>{{ sample.description }}</td>
+        <td><a href="/ejemplos/{{ sample.name }}.zip">Descargar ZIP</a></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<script>
+  const source = document.getElementById("source");
+  const box = document.getElementById("upload-box");
+  const sync = () => { box.hidden = source.value !== "upload"; };
+  source.addEventListener("change", sync);
+  sync();
+  document.getElementById("solve-form").addEventListener("submit", () => {
+    document.getElementById("solve-button").disabled = true;
+    document.getElementById("solve-wait").hidden = false;
+  });
+</script>
+{% endblock %}

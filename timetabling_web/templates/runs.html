@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Corridas · Horarios universitarios{% endblock %}
+{% block content %}
+<h1>Corridas</h1>
+<p class="lead">Las últimas 50 corridas guardadas, de la más reciente a la más antigua.</p>
+<table>
+  <thead><tr><th>Fecha (UTC)</th><th>Datos</th><th>Solver</th><th>Estado</th><th class="num">Secciones</th>
+             <th class="num">Objetivo</th><th class="num">Brecha</th><th class="num">Ventanas</th><th class="num">Tiempo</th></tr></thead>
+  <tbody>
+  {% for run in runs %}
+    <tr>
+      <td><a href="/corridas/{{ run.id }}">{{ run.created_at[:16]|replace("T", " ") }}</a></td>
+      <td>{{ run.source }}</td>
+      <td>{{ run.solver }}{% if run.gamma %} · ventana {{ run.gamma }}{% endif %}</td>
+      <td><span class="badge {{ run.status }}">{{ run.status }}</span></td>
+      <td class="num">{{ run.sections }}</td>
+      <td class="num">{{ run.total if run.total is not none else "—" }}</td>
+      <td class="num">{{ ("%.1f %%"|format(run.gap * 100))|replace(".", ",") if run.gap is not none else "—" }}</td>
+      <td class="num">{{ run.windows if run.windows is not none else "—" }}</td>
+      <td class="num">{{ "%.1f"|format(run.seconds)|replace(".", ",") }} s</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="9">Todavía no hay corridas guardadas.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

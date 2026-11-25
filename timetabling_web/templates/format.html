@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Formato de datos · Horarios universitarios{% endblock %}
+{% block content %}
+<h1>Formato de datos</h1>
+<p class="lead">Un ZIP con un CSV por tabla (UTF-8, con encabezado igual a las columnas) y <code>{{ config_file }}</code>.
+Una tabla sin registros va como CSV con solo el encabezado. Lo más simple es
+<a href="/ejemplos/demo.zip">descargar un ejemplo</a>, editarlo y volver a comprimirlo.</p>
+<p class="help">Las disponibilidades son listas positivas: un docente o una sala solo se usa en los
+bloques que aparecen listados. Los identificadores son texto. Si un dato no cumple el formato, la
+aplicación indica el archivo, la fila y el campo.</p>
+<table>
+  <thead><tr><th>Archivo</th><th>Columnas</th><th>Contenido</th></tr></thead>
+  <tbody>
+  {% for table in tables %}
+    <tr><td><code>{{ table.file }}</code></td><td>{% for column in table.columns %}<code>{{ column }}</code>{% if not loop.last %} {% endif %}{% endfor %}</td><td>{{ table.note }}</td></tr>
+  {% endfor %}
+    <tr><td><code>{{ config_file }}</code></td><td><code>alpha</code> <code>beta</code> <code>time_limit_seconds</code> <code>random_seed</code> <code>num_search_workers</code></td>
+        <td>Pesos del objetivo (alpha: preferencias docentes; beta: holgura de capacidad). Si falta, se usan alpha = 10 y beta = 1. El límite de tiempo y los workers los fija el formulario.</td></tr>
+  </tbody>
+</table>
+{% endblock %}
