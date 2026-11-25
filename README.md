@@ -71,6 +71,15 @@ no ven nada.
 | Límite de tiempo del solver | 60 s | En el plan Hobby una función de Vercel corre hasta 300 s |
 | Solvers | HiGHS y CP-SAT | CBC ocupa unos 550 MB y no cabe en una función (límite de 500 MB) |
 
+Dos ajustes al entorno de Vercel, en `timetabling_web/_serverless.py`, que solo se activan si
+hacen falta:
+
+- **SQLite.** El prefiltro del original exige SQLite 3.44 o posterior y el Python de Vercel trae
+  uno anterior. Se usa el de `pysqlite3-binary` (3.51) cuando el del sistema no basta.
+- **Memoria compartida.** Las funciones corren sobre AWS Lambda, sin `/dev/shm`, y Pyomo no
+  tolera ese error al cargarse. Se sustituye el lock de procesos por uno de hilos; la app no
+  lanza subprocesos.
+
 Otras advertencias:
 
 - **Arranque en frío.** La primera petición tras un rato sin uso tarda unos segundos más

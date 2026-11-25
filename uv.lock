@@ -457,6 +457,14 @@ wheels = [
 ]
 
 [[package]]
+name = "pysqlite3-binary"
+version = "0.5.4.post2"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/35/e8/292e14aa4ed1ef3d4a70703c0103823fcd4b7d9701d9462e52ef88c2cc10/pysqlite3_binary-0.5.4.post2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:b6162cd966fa563fe85b5372c3e61d11dd7903bd0f09cc185cb0a4c9125f4a0f", size = 4951088, upload-time = "2025-12-03T18:36:39.786Z" },
+]
+
+[[package]]
 name = "pytest"
 version = "9.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -552,6 +560,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "httpx" },
     { name = "jinja2" },
+    { name = "pysqlite3-binary", marker = "sys_platform == 'linux'" },
     { name = "python-multipart" },
     { name = "timetabling-milp" },
 ]
@@ -569,6 +578,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "jinja2", specifier = ">=3.1" },
+    { name = "pysqlite3-binary", marker = "sys_platform == 'linux'", specifier = ">=0.5.4" },
     { name = "python-multipart", specifier = ">=0.0.9" },
     { name = "timetabling-milp", git = "https://github.com/nickofitz/timetabling-milp-comparison?rev=30c1a8afbce51f4e8210883e4fb0f417b16813f4" },
 ]
